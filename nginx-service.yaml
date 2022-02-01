@@ -6,7 +6,7 @@ metadata:
     app: nginx
     svc: test-nginx
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: nginx
   ports:
