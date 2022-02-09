@@ -19,3 +19,10 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
+      - name: log-sidecar
+        image: busybox
+        command: ["sh", "-c", "while true; do echo sync application logs; sleep 20; done"]
+      initContainers:
+      - name: db-availablity
+        image: busybox
+        command: ["sh", "-c", "until nslookup mydb-service; do echo waiting for database; sleep 4; done"]
