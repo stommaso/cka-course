@@ -19,51 +19,9 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
-        command: ["sh", "-c"]
-        args:
-        - while true; do
-            echo "$(date) INFO some app data" >> /var/log-nginx/myapp.log;
-            sleep 20;
-          done
-        volumeMounts:
-        - name: log-data
-          mountPath: /var/log-nginx
 
-      - name: log-sidecar
-        image: busybox
-        command: ["sh", "-c"]
-        args:
-        - printenv NODE_NAME POD_NAME POD_SERVICE_ACCOUNT POD_IP_ADDRESS;
-          while true; do
-            tail -f /var/sidecar/myapp.log;
-            sleep 20;
-          done 
-        volumeMounts:
-        - name: log-data
-          mountPath: /var/sidecar
-        env:
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: POD_SERVICE_ACCOUNT
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.serviceAccountName
-        - name: POD_IP_ADDRESS
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-      
       initContainers:
       - name: db-availablity
         image: busybox
         command: ["sh", "-c", "until nslookup mydb-service; do echo waiting for database; sleep 4; done"]
       
-      volumes:
-      - name: log-data
-        emptyDir: {}
