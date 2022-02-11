@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mydb
+  name: mydb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mydb
+  template:
+    metadata:
+      labels:
+        app: mydb
+    spec:
+      containers:
+      - image: busybox
+        name: busybox
+        command: ["sh", "-c", "cat /mysql/db-config/mysql.conf;echo '\n';cat /mysql/db-secret/secret.file; sleep 120"]
+
+        volumeMounts:
+        - name: db-config
+          mountPath: /mysql/db-config
+        - name: db-secret
+          mountPath: /mysql/db-secret
+          readOnly: true
+
+      volumes:
+      - name: db-config
+        configMap:
+          name: mysql-config-file
+      - name: db-secret
+        secret:
+          secretName: mysql-secret-file
