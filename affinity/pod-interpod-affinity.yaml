@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-interpod-affinity-deployment
+spec:
+  selector:
+    matchLabels:
+      app: interpod-affinity
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: interpod-affinity
+    spec:
+      containers:
+      - name: app-container
+        image: nginx
+      nodeSelector:
+        type: master
+      tolerations:
+      - effect: NoSchedule 
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - etcd
+            topologyKey: "kubernetes.io/hostname"
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - interpod-affinity
+            topologyKey: "kubernetes.io/hostname"
+    
